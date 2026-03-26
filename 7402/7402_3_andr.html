@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Альфа-Вклад — Рассчитайте доход</title>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-98GT8FHBZK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-98GT8FHBZK');
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Roboto', system-ui, 'Helvetica Neue', Arial, sans-serif;
+      background: #FFFFFF; color: rgba(3, 3, 6, 0.88);
+      -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%;
+    }
+    main { padding: 20px 20px 0; padding-bottom: calc(88px + 32px + env(safe-area-inset-bottom)); }
+    .section { padding: 20px 0; }
+    .section-title { font-size: 17px; line-height: 24px; font-weight: 600; color: rgba(3,3,6,0.88); margin-bottom: 16px; }
+    .page-title { font-size: 28px; line-height: 34px; font-weight: 700; color: rgba(3,3,6,0.88); letter-spacing: -0.02em; margin-bottom: 8px; }
+    .page-subtitle { font-size: 17px; line-height: 24px; font-weight: 400; color: rgba(4,4,19,0.55); margin-bottom: 12px; }
+    .field-wrap { margin-bottom: 12px; }
+    .field-wrap:last-child { margin-bottom: 0; }
+    .input-field {
+      background: #F5F5F5; border: 1.5px solid transparent; border-radius: 12px;
+      padding: 8px 8px 8px 16px; height: 56px; display: flex; align-items: center;
+      transition: border-color 0.15s, background 0.15s; cursor: pointer;
+    }
+    .input-field.focused { border-color: rgba(3,3,6,0.88); background: #FFFFFF; }
+    .input-field.error { border-color: #EF3124; }
+    .input-field.disabled { opacity: 0.45; pointer-events: none; }
+    .field-inner { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .field-label { font-size: 14px; font-weight: 400; color: rgba(4,4,19,0.55); line-height: 1; margin-bottom: 3px; }
+    .field-value-row { display: flex; align-items: center; }
+    .field-value-row input {
+      background: transparent; border: none; outline: none;
+      font-size: 17px; font-weight: 700; color: rgba(3,3,6,0.88);
+      font-family: inherit; width: 100%; padding: 0; line-height: 1.2; caret-color: rgba(3,3,6,0.88);
+    }
+    .field-value-text { font-size: 17px; font-weight: 400; color: rgba(3,3,6,0.88); line-height: 1.2; }
+    .clear-btn {
+      width: 36px; height: 44px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; cursor: pointer; visibility: hidden; opacity: 0;
+      transition: opacity 0.15s; background: none; border: none; padding: 0;
+    }
+    .clear-btn.show { visibility: visible; opacity: 1; }
+    .chevron-btn { width: 36px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: rgba(4,4,19,0.55); }
+    .chevron-btn svg { transition: transform 0.2s ease; }
+    .input-field.open .chevron-btn svg { transform: rotate(180deg); }
+    .field-hint { font-size: 14px; font-weight: 400; color: rgba(4,4,19,0.55); margin-top: 4px; min-height: 20px; }
+    .field-hint.err { color: #EF3124; }
+    .bs-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .bs-overlay.vis { opacity: 1; pointer-events: all; }
+    .bs-sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 901;
+      background: #FFFFFF; border-radius: 20px 20px 0 0; max-height: 85vh;
+      display: flex; flex-direction: column;
+      transform: translateY(100%); transition: transform 0.3s ease-out;
+    }
+    .bs-overlay.vis .bs-sheet { transform: translateY(0); }
+    .bs-overlay.closing .bs-sheet { transition: transform 0.2s ease-in; }
+    .bs-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 16px; flex-shrink: 0; }
+    .bs-title { font-size: 22px; font-weight: 700; color: rgba(3,3,6,0.88); }
+    .bs-close { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: none; border: none; color: rgba(3,3,6,0.88); -webkit-tap-highlight-color: transparent; }
+    .bs-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: env(safe-area-inset-bottom); }
+    .dd-item { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 20px; font-size: 17px; font-weight: 400; color: rgba(3,3,6,0.88); cursor: pointer; }
+    .dd-item.sel { font-weight: 700; }
+    .dd-check { color: rgba(3,3,6,0.88); flex-shrink: 0; }
+    .cb-row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; min-height: 40px; cursor: pointer; user-select: none; }
+    .cb-row.dis { opacity: 0.5; pointer-events: auto; }
+    .cb-box { width: 24px; height: 24px; border: 2px solid #E1E3E6; border-radius: 6px; background: #FFFFFF; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; }
+    .cb-box.on { background: rgba(3,3,6,0.88); border-color: rgba(3,3,6,0.88); }
+    .cb-text { flex: 1; min-width: 0; }
+    .cb-label { font-size: 17px; line-height: 24px; font-weight: 400; color: rgba(3,3,6,0.88); }
+    .cb-hint { font-size: 14px; font-weight: 400; color: rgba(4,4,19,0.65); margin-top: 2px; line-height: 1.4; }
+    .cb-hint-val { font-size: 17px; font-weight: 400; color: rgba(3,3,6,0.88); display: block; }
+    .result-block { padding: 4px 0 0; }
+    .res-label { font-size: 17px; font-weight: 600; color: rgba(3,3,6,0.88); margin-bottom: 4px; }
+    .res-value { font-size: 17px; font-weight: 600; color: #248F3D; margin-bottom: 16px; transition: opacity 0.2s ease-out; line-height: 1.2; }
+    .res-value.dash { color: rgba(4,4,19,0.55); }
+    .res-error { font-size: 14px; color: rgba(4,4,19,0.55); margin-top: -8px; margin-bottom: 8px; display: none; }
+    .ar-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 4px 0 20px; }
+    .ar-label { font-size: 17px; font-weight: 400; color: rgba(3,3,6,0.88); line-height: 1.2; }
+    .ar-sub { font-size: 14px; color: rgba(4,4,19,0.65); margin-top: 4px; line-height: 1.4; }
+    .toggle { width: 30px; min-width: 30px; height: 14px; border-radius: 7px; background: #C4C6CA; position: relative; cursor: pointer; transition: background 0.2s ease-in-out; flex-shrink: 0; overflow: visible; }
+    .toggle-knob { position: absolute; top: 50%; left: 0; width: 19px; height: 19px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transform: translateY(-50%) translateX(-1px); transition: transform 0.2s ease-in-out, background 0.2s ease-in-out; }
+    .toggle.on .toggle-knob { transform: translateY(-50%) translateX(12px); background: rgba(3,3,6,0.88); }
+    .doc-link { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+    .doc-icon { color: rgba(4,4,19,0.55); flex-shrink: 0; display: flex; align-items: center; }
+    .doc-text { font-size: 17px; font-weight: 400; color: rgba(3,3,6,0.88); line-height: 24px; }
+    .disclaimer { font-size: 14px; line-height: 18px; font-weight: 400; color: rgba(4,4,19,0.55); margin-top: -8px; }
+    .disclaimer + .disclaimer { margin-top: 6px; }
+    .cta-wrap { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 20px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); background: #FFFFFF; z-index: 100; }
+    .cta-btn { display: block; width: 100%; height: 56px; border-radius: 16px; background: #000000; color: #FFFFFF; font-size: 17px; font-weight: 700; font-family: inherit; border: none; cursor: pointer; text-align: center; line-height: 56px; transition: opacity 0.1s ease-out; -webkit-tap-highlight-color: transparent; }
+    .cta-btn:active { opacity: 0.8; }
+    .cta-btn.off { background: #E1E3E6; color: rgba(4,4,19,0.55); cursor: not-allowed; }
+    .cta-btn.off:active { opacity: 1; }
+    .overlay { position: fixed; inset: 0; z-index: 1000; background: #FFFFFF; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s ease-out; }
+    .overlay.vis { transform: translateY(0); }
+    .overlay.closing { transition: transform 0.2s ease-in; }
+    .ov-header { height: 56px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border-bottom: 1px solid #E1E3E6; flex-shrink: 0; }
+    .ov-icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(3,3,6,0.88); background: none; border: none; -webkit-tap-highlight-color: transparent; }
+    .ov-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .ov-content { padding: 8px; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; line-height: 20px; color: #333; overflow: hidden; }
+    .spin-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display: none; align-items: center; justify-content: center; z-index: 2000; }
+    .spin-ring { width: 44px; height: 44px; border: 3px solid #E1E3E6; border-top-color: #000; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══════════════════════════════════════════
+       ВАРИАНТ 2: Ключевые факты + Bottom Sheet
+    ══════════════════════════════════════════ */
+
+    .ai-facts-block {
+      background: linear-gradient(135deg, #F2F0FF 0%, #F8F7FF 60%, #F5F5F5 100%);
+      border-radius: 14px;
+      padding: 16px;
+      margin: 0 0 16px;
+      border: 1.5px solid rgba(123, 97, 255, 0.22);
+      box-shadow: 0 2px 10px rgba(123, 97, 255, 0.08);
+    }
+
+    /* Заголовок блока */
+    .ai-facts-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .ai-facts-title {
+      font-size: 17px; line-height: 24px; font-weight: 700;
+      color: rgba(3,3,6,0.88);
+    }
+
+    /* Строки фактов */
+    .ai-fact-row {
+      display: flex; align-items: center; gap: 10px;
+      min-height: 28px; margin-bottom: 6px;
+    }
+    .ai-fact-row:last-of-type { margin-bottom: 0; }
+    .ai-fact-marker {
+      flex-shrink: 0; width: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ai-fact-marker.check { color: #248F3D; }
+    .ai-fact-text {
+      font-size: 15px; line-height: 20px; font-weight: 400;
+      color: rgba(3,3,6,0.88);
+    }
+
+    /* Кнопка «Подробнее» */
+    .ai-accordion-trigger {
+      display: flex; align-items: center;
+      margin-top: 12px; padding: 8px 0; min-height: 44px;
+      cursor: pointer; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.1s ease-out;
+    }
+    .ai-accordion-trigger:active { opacity: 0.7; }
+    .ai-accordion-trigger-text {
+      font-size: 15px; line-height: 20px; font-weight: 500;
+      color: #6B4FCC;
+    }
+    .ai-accordion-chevron {
+      margin-left: auto; color: #6B4FCC;
+    }
+
+    /* Bottom sheet контент ИИ-саммари */
+    .ai-bs-body { padding: 0 20px 32px; }
+    .ai-body-sec-title {
+      font-size: 15px; line-height: 20px; font-weight: 700;
+      color: rgba(3,3,6,0.88); margin-top: 20px; margin-bottom: 10px;
+    }
+    .ai-body-sec-title:first-child { margin-top: 4px; }
+    .ai-bs-list {
+      list-style: none; display: flex; flex-direction: column; gap: 8px;
+    }
+    .ai-bs-item {
+      font-size: 15px; line-height: 20px; color: rgba(3,3,6,0.88);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .ai-bs-item::before {
+      content: '—'; color: rgba(4,4,19,0.35); flex-shrink: 0; margin-top: 0;
+    }
+    .ai-bs-item-inner { flex: 1; }
+    .ai-ref {
+      font-size: 13px; color: rgba(4,4,19,0.4); margin-left: 3px; white-space: nowrap;
+    }
+    .ai-warn-label {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ai-body-disclaimer {
+      font-size: 13px; line-height: 16px; font-weight: 400;
+      color: rgba(4,4,19,0.35); margin-top: 20px; padding-top: 16px;
+      border-top: 1px solid #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+
+<main id="main">
+
+  <h1 class="page-title">Альфа-Вклад</h1>
+  <p class="page-subtitle">Ваши деньги приносят доход. Условия и ставка не меняются весь срок</p>
+
+  <section class="section" aria-label="Сумма и срок">
+    <h2 class="section-title">Сумма и срок</h2>
+    <div class="field-wrap">
+      <div class="input-field" id="amt-field">
+        <div class="field-inner">
+          <div class="field-label">Сумма</div>
+          <div class="field-value-row">
+            <input type="text" id="amt-input" inputmode="numeric" autocomplete="off" aria-label="Сумма вклада">
+          </div>
+        </div>
+        <button class="clear-btn" id="clear-btn" aria-label="Очистить" tabindex="-1">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="rgba(4,4,19,0.25)"/>
+            <path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="field-hint" id="amt-hint">От 10 000 ₽</div>
+    </div>
+    <div class="field-wrap">
+      <div class="input-field" id="term-field" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Выбор срока вклада">
+        <div class="field-inner">
+          <div class="field-label">Срок</div>
+          <div class="field-value-text" id="term-display">4 месяца</div>
+        </div>
+        <div class="chevron-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6l4 4 4-4" stroke="rgba(4,4,19,0.55)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="field-hint" id="term-hint">До —</div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Какие опции нужны">
+    <h2 class="section-title">Какие опции нужны</h2>
+    <div class="cb-row" id="cb-row-cap" role="checkbox" aria-checked="true" tabindex="0">
+      <div class="cb-box on" id="cb-cap">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+          <path d="M1.5 5L5.5 9L12.5 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="cb-text"><div class="cb-label">Оставлять проценты на вкладе</div></div>
+    </div>
+    <div class="cb-row dis" id="cb-row-rep" role="checkbox" aria-checked="false" aria-disabled="true" tabindex="0">
+      <div class="cb-box" id="cb-rep"></div>
+      <div class="cb-text">
+        <div class="cb-label">Пополнение</div>
+        <div class="cb-hint" id="rep-hint">Доступно на сроках 3, 6, 9, 12 месяцев</div>
+      </div>
+    </div>
+    <div class="cb-row dis" id="cb-row-wit" role="checkbox" aria-checked="false" aria-disabled="true" tabindex="0">
+      <div class="cb-box" id="cb-wit"></div>
+      <div class="cb-text">
+        <div class="cb-label">Снятие</div>
+        <div class="cb-hint" id="wit-hint">Доступно на сроках 3, 6, 9, 12 месяцев</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="result-block section" data-track-section="result">
+    <div class="res-label">Итоговая ставка</div>
+    <div class="res-value" id="rate-val">—</div>
+    <div class="res-label">Прогноз дохода</div>
+    <div class="res-value" id="income-val">—</div>
+    <div class="res-error" id="res-error">Нет подходящих ставок. Измените параметры</div>
+  </div>
+
+  <div class="ar-row">
+    <div>
+      <div class="ar-label">Автопродление вклада</div>
+      <div class="ar-sub">На тот же срок</div>
+    </div>
+    <div class="toggle on" id="ar-toggle" role="switch" aria-checked="true" tabindex="0">
+      <div class="toggle-knob"></div>
+    </div>
+  </div>
+
+  <section class="section" aria-label="Документ">
+    <h2 class="section-title">Документ</h2>
+    <div class="doc-link" id="doc-link" role="button" tabindex="0" aria-label="Открыть заявление на открытие вклада">
+      <span class="doc-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" fill="rgba(4,4,19,0.45)"/>
+          <path d="M14 2l6 6h-4a2 2 0 0 1-2-2V2z" fill="rgba(4,4,19,0.35)"/>
+          <rect x="7.5" y="12" width="9" height="1.8" rx="0.4" fill="white"/>
+          <rect x="7.5" y="15.8" width="5.5" height="1.8" rx="0.4" fill="white"/>
+        </svg>
+      </span>
+      <span class="doc-text">Заявление на открытие вклада</span>
+    </div>
+  </section>
+
+  <!-- ── 5.5 БЛОК «КЛЮЧЕВЫЕ ФАКТЫ» (В2) ── -->
+  <div id="ai-facts-block" class="ai-facts-block" data-track-section="summarizer">
+    <div class="ai-facts-header">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="flex-shrink:0;" aria-hidden="true">
+        <defs>
+          <linearGradient id="mg1" x1="0" y1="0" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#7B61FF"/>
+            <stop offset="55%" stop-color="#E04FBB"/>
+            <stop offset="100%" stop-color="#FFB800"/>
+          </linearGradient>
+        </defs>
+        <path d="M11 1.5L12.8 8.8L20 11L12.8 13.2L11 20.5L9.2 13.2L2 11L9.2 8.8L11 1.5Z" fill="url(#mg1)"/>
+        <circle cx="18.5" cy="4" r="1.6" fill="#FFB800" opacity="0.85"/>
+        <circle cx="4" cy="18.5" r="1.1" fill="#7B61FF" opacity="0.7"/>
+      </svg>
+      <span class="ai-facts-title">ИИ-помощник — об условиях</span>
+    </div>
+
+    <div class="ai-fact-row">
+      <span class="ai-fact-marker check">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="8.25" fill="rgba(36,143,61,0.1)" stroke="#248F3D" stroke-width="1.5"/>
+          <path d="M5.5 9L7.8 11.5L12.5 6.5" stroke="#248F3D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="ai-fact-text">Ставка фиксирована на весь срок</span>
+    </div>
+    <div class="ai-fact-row">
+      <span class="ai-fact-marker check">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="8.25" fill="rgba(36,143,61,0.1)" stroke="#248F3D" stroke-width="1.5"/>
+          <path d="M5.5 9L7.8 11.5L12.5 6.5" stroke="#248F3D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="ai-fact-text">Капитализация ежемесячно</span>
+    </div>
+    <div class="ai-fact-row" style="margin-bottom:0;">
+      <span class="ai-fact-marker">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 1.5L16.8 15.5H1.2L9 1.5Z" fill="rgba(245,124,0,0.12)" stroke="#F57C00" stroke-width="1.5" stroke-linejoin="round"/>
+          <rect x="8.15" y="7" width="1.7" height="4.5" rx="0.85" fill="#F57C00"/>
+          <circle cx="9" cy="13.2" r="0.9" fill="#F57C00"/>
+        </svg>
+      </span>
+      <span class="ai-fact-text">Есть условия при досрочном закрытии</span>
+    </div>
+
+    <div id="ai-accordion-trigger" class="ai-accordion-trigger" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Подробнее об условиях вклада">
+      <span class="ai-accordion-trigger-text">Подробнее</span>
+      <span class="ai-accordion-chevron">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 4l4 4-4 4" stroke="#6B4FCC" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+  <p class="disclaimer">Расчёт предварительный. Точные условия вы сможете узнать после оформления заявки</p>
+
+</main>
+
+<!-- FIXED CTA -->
+<div class="cta-wrap" data-track-section="cta">
+  <button class="cta-btn cta-button" id="cta-btn" role="button" aria-label="К оформлению">К оформлению</button>
+</div>
+
+<!-- ОВЕРЛЕЙ ДОКУМЕНТА -->
+<div class="overlay" id="contract-overlay" role="dialog" aria-modal="true" aria-label="Заявление на открытие вклада">
+  <div class="ov-header">
+    <button class="ov-icon-btn" id="ov-close" aria-label="Закрыть">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="ov-body">
+    <div class="ov-content" id="ov-content"></div>
+  </div>
+</div>
+
+<!-- BOTTOM SHEET СРОКА -->
+<div class="bs-overlay" id="term-bs">
+  <div class="bs-sheet">
+    <div class="bs-header">
+      <div class="bs-title">Срок</div>
+      <button class="bs-close" id="bs-close" aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="bs-list" id="term-dd" role="listbox"></div>
+  </div>
+</div>
+
+<!-- BOTTOM SHEET ИИ-САММАРИ -->
+<div class="bs-overlay" id="ai-summary-bs" role="dialog" aria-modal="true" aria-label="ИИ-помощник об условиях">
+  <div class="bs-sheet">
+    <div class="bs-header">
+      <div class="bs-title" style="font-size:18px;line-height:24px;">ИИ-помощник — об условиях:</div>
+      <button class="bs-close" id="ai-bs-close" aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="bs-list"><div class="ai-bs-body" id="ai-bs-content"><!-- JS --></div></div>
+  </div>
+</div>
+
+<!-- СПИННЕР -->
+<div class="spin-overlay" id="spinner"><div class="spin-ring"></div></div>
+
+<script>
+const VARIANT_ID = 3;
+const PLATFORM   = 'android';
+const CTA_URL    = 'https://ghk-cr-track.ru/7402_end';
+
+const TERMS = [
+  { label: '2 месяца',  months: 2,  key: '2m'  },
+  { label: '3 месяца',  months: 3,  key: '3m'  },
+  { label: '4 месяца',  months: 4,  key: '4m'  },
+  { label: '6 месяцев', months: 6,  key: '6m'  },
+  { label: '9 месяцев', months: 9,  key: '9m'  },
+  { label: '1 год',     months: 12, key: '12m' },
+  { label: '1,5 года',  months: 18, key: '18m' },
+  { label: '2 года',    months: 24, key: '24m' },
+  { label: '3 года',    months: 36, key: '36m' }
+];
+
+const RATE_TABLES = {
+  standard: {
+    minAmount: 10000,
+    terms: {
+      '2m':  { days: 62,   displayRate: 0.135,    baseRate: 0.1342  },
+      '3m':  { days: 92,   displayRate: 0.141,    baseRate: 0.1394  },
+      '4m':  { days: 123,  displayRate: 0.143,    baseRate: 0.1405  },
+      '6m':  { days: 184,  displayRate: 0.141,    baseRate: 0.1370  },
+      '9m':  { days: 276,  displayRate: 0.131,    baseRate: 0.1256  },
+      '12m': { days: 365,  displayRate: 0.131,    baseRate: 0.1237  },
+      '18m': { days: 550,  displayRate: 0.106,    baseRate: 0.0988  },
+      '24m': { days: 730,  displayRate: 0.106,    baseRate: 0.0965  },
+      '36m': { days: 1095, displayRate: 0.081,    baseRate: 0.0727  }
+    }
+  },
+  replenish: {
+    minAmount: 300000,
+    amountRanges: [
+      { min: 300000, max: 999999, maxDeposit: 5000000 },
+      { min: 1000000, max: 4999999, maxDeposit: 15000000 },
+      { min: 5000000, max: 9999999, maxDeposit: 50000000 },
+      { min: 10000000, max: Infinity, maxDeposit: 200000000 }
+    ],
+    terms: {
+      '3m':  { days: 92,  displayRate: 0.123, baseRate: 0.1218 },
+      '6m':  { days: 184, displayRate: 0.118, baseRate: 0.1152 },
+      '9m':  { days: 276, displayRate: 0.108, baseRate: 0.1043 },
+      '12m': { days: 365, displayRate: 0.083, baseRate: 0.08   }
+    }
+  },
+  replenish_withdraw: {
+    minAmount: 300000,
+    amountRanges: [
+      { min: 300000, max: 999999, minBalance: 300000, maxDeposit: 5000000 },
+      { min: 1000000, max: 4999999, minBalance: 1000000, maxDeposit: 15000000 },
+      { min: 5000000, max: 9999999, minBalance: 5000000, maxDeposit: 50000000 },
+      { min: 10000000, max: Infinity, minBalance: 10000000, maxDeposit: 200000000 }
+    ],
+    terms: {
+      '3m':  { days: 92,  displayRate: 0.118,   baseRate: 0.1169  },
+      '6m':  { days: 184, displayRate: 0.113,   baseRate: 0.1104  },
+      '9m':  { days: 276, displayRate: 0.09801, baseRate: 0.0949  },
+      '12m': { days: 365, displayRate: 0.078,   baseRate: 0.0753  }
+    }
+  }
+};
+
+const ALLOWED_TERM_KEYS  = ['3m', '6m', '9m', '12m'];
+const MIN_OPTIONS_AMOUNT = 300000;
+const MAX_AMOUNT         = 200000000;
+
+const state = {
+  amount: 50000, termKey: '4m', termMonths: 4,
+  interestOnDeposit: true, replenish: false, withdraw: false, autoRenewal: true,
+  productType: 'standard', displayRate: null, baseRate: null,
+  shownRate: null, income: null, endDate: null, termDays: null, minBalance: null, hasError: false
+};
+
+function fmtNum(n) { if (n == null || isNaN(n)) return '—'; return Math.round(n).toLocaleString('ru-RU').replace(/\u00a0/g, '\u00a0'); }
+function fmtMoney(n) { if (n == null || isNaN(n)) return '—'; const p = n.toFixed(2).split('.'); return parseInt(p[0],10).toLocaleString('ru-RU').replace(/\u00a0/g,'\u00a0') + ',' + p[1]; }
+function fmtInputNum(s) { if (!s) return ''; return s.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+function fmtRate(r) { if (r == null) return '—'; const s = Number((r*100).toFixed(1)); return (s%1===0?s.toFixed(0):s.toFixed(1)).replace('.',',')+('%'); }
+function fmtDate(d) { return d.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric' }); }
+function addMonths(date, n) { const d = new Date(date); d.setMonth(d.getMonth()+n); return d; }
+function getProductFullName(t) {
+  return t === 'replenish' ? 'Срочный вклад «Альфа-Вклад с пополнением»'
+       : t === 'replenish_withdraw' ? 'Срочный вклад «Альфа-Вклад с пополнением и снятием»'
+       : 'Срочный вклад «Альфа-Вклад»';
+}
+function getProductType(rep, wit) { if (rep && wit) return 'replenish_withdraw'; if (rep) return 'replenish'; if (wit) return 'replenish_withdraw'; return 'standard'; }
+function getRateData(pt, tk, amt) { const p = RATE_TABLES[pt]; if (!p || amt < p.minAmount) return null; const t = p.terms[tk]; if (!t) return null; return { displayRate: t.displayRate, baseRate: t.baseRate, days: t.days }; }
+function calcCompound(a, r, m) { return Math.round((a * Math.pow(1+r/12, m) - a) * 100) / 100; }
+function calcSimple(a, r, d) { return Math.round(a * r * d / 365 * 100) / 100; }
+function getAmountRange(pt, amt) { const p = RATE_TABLES[pt]; if (!p || !p.amountRanges) return null; return p.amountRanges.find(r => amt >= r.min && amt <= r.max) || null; }
+
+function recalculate() {
+  state.productType = getProductType(state.replenish, state.withdraw);
+  const rd = (state.amount >= 10000) ? getRateData(state.productType, state.termKey, state.amount) : null;
+  if (rd) {
+    state.displayRate = rd.displayRate; state.baseRate = rd.baseRate; state.termDays = rd.days;
+    state.shownRate = state.interestOnDeposit ? rd.displayRate : rd.baseRate;
+    state.income = state.interestOnDeposit ? calcCompound(state.amount, rd.baseRate, state.termMonths) : calcSimple(state.amount, rd.baseRate, rd.days);
+    state.hasError = false;
+  } else { state.displayRate = null; state.baseRate = null; state.termDays = null; state.shownRate = null; state.income = null; state.hasError = true; }
+  state.endDate = fmtDate(addMonths(new Date(), state.termMonths));
+  state.minBalance = getAmountRange(state.productType, state.amount)?.minBalance || null;
+  updateOptionsState(); renderUI();
+}
+
+function updateOptionsState() {
+  const amtOk = state.amount >= 10000, termOk = ALLOWED_TERM_KEYS.includes(state.termKey), amtBig = state.amount >= MIN_OPTIONS_AMOUNT, opsOk = amtOk && termOk && amtBig;
+  const capRow = document.getElementById('cb-row-cap'), repRow = document.getElementById('cb-row-rep'), witRow = document.getElementById('cb-row-wit');
+  if (!amtOk) { [capRow,repRow,witRow].forEach(r=>{r.classList.add('dis');r.setAttribute('aria-disabled','true');}); state.replenish=false; state.withdraw=false; document.getElementById('rep-hint').textContent=''; document.getElementById('wit-hint').textContent=''; }
+  else {
+    capRow.classList.remove('dis'); capRow.removeAttribute('aria-disabled');
+    if (!opsOk) { state.replenish=false; state.withdraw=false; [repRow,witRow].forEach(r=>{r.classList.add('dis');r.setAttribute('aria-disabled','true');}); const reason=!termOk?'Доступно на сроках 3, 6, 9, 12 месяцев':'Доступно для вкладов от 300 000 ₽'; document.getElementById('rep-hint').textContent=reason; document.getElementById('wit-hint').textContent=reason; }
+    else { [repRow,witRow].forEach(r=>{r.classList.remove('dis');r.removeAttribute('aria-disabled');}); updateHints(); }
+  }
+  setCheckboxVisual('cb-cap', state.interestOnDeposit, 'cb-row-cap');
+  setCheckboxVisual('cb-rep', state.replenish, 'cb-row-rep');
+  setCheckboxVisual('cb-wit', state.withdraw, 'cb-row-wit');
+}
+function setCheckboxVisual(bid, checked, rid) {
+  const box = document.getElementById(bid), row = document.getElementById(rid);
+  if (checked) { box.classList.add('on'); box.innerHTML=`<svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1.5 5L5.5 9L12.5 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+  else { box.classList.remove('on'); box.innerHTML=''; }
+  row.setAttribute('aria-checked', checked ? 'true' : 'false');
+}
+function updateHints() {
+  const rh = document.getElementById('rep-hint');
+  if (state.replenish) { const r = getAmountRange('replenish', state.amount); rh.innerHTML = r?.maxDeposit ? `<span style="display:block">Максимальная сумма вклада</span><span class="cb-hint-val">${fmtNum(r.maxDeposit)} ₽</span>` : ''; } else { rh.textContent=''; }
+  const wh = document.getElementById('wit-hint');
+  if (state.withdraw) { const r = getAmountRange('replenish_withdraw', state.amount); wh.innerHTML = r?.minBalance ? `<span style="display:block">Неснижаемый остаток</span><span class="cb-hint-val">${fmtNum(r.minBalance)} ₽</span>` : ''; } else { wh.textContent=''; }
+}
+
+function renderUI() {
+  const rateEl=document.getElementById('rate-val'), incomeEl=document.getElementById('income-val'), errEl=document.getElementById('res-error'), ctaBtn=document.getElementById('cta-btn');
+  rateEl.style.opacity='0.4'; incomeEl.style.opacity='0.4';
+  requestAnimationFrame(() => {
+    if (!state.hasError && state.amount >= 10000) { rateEl.textContent=fmtRate(state.shownRate); incomeEl.textContent=fmtMoney(state.income)+'\u00a0₽'; rateEl.classList.remove('dash'); incomeEl.classList.remove('dash'); errEl.style.display='none'; ctaBtn.classList.remove('off'); ctaBtn.removeAttribute('disabled'); ctaBtn.removeAttribute('aria-disabled'); }
+    else { rateEl.textContent='—'; incomeEl.textContent='—'; rateEl.classList.add('dash'); incomeEl.classList.add('dash'); errEl.style.display=state.hasError?'':'none'; ctaBtn.classList.add('off'); ctaBtn.setAttribute('disabled',''); ctaBtn.setAttribute('aria-disabled','true'); }
+    rateEl.style.opacity='1'; incomeEl.style.opacity='1';
+  });
+  const tf=document.getElementById('term-field');
+  if (state.amount>=10000) { document.getElementById('term-hint').textContent=state.endDate?'До '+state.endDate:''; tf.classList.remove('disabled'); tf.setAttribute('tabindex','0'); }
+  else { document.getElementById('term-hint').textContent=''; tf.classList.add('disabled'); tf.setAttribute('tabindex','-1'); }
+  const tog=document.getElementById('ar-toggle');
+  if (state.autoRenewal) { tog.classList.add('on'); tog.setAttribute('aria-checked','true'); } else { tog.classList.remove('on'); tog.setAttribute('aria-checked','false'); }
+}
+
+let amtTimer=null;
+function initAmountInput() {
+  const input=document.getElementById('amt-input'), field=document.getElementById('amt-field'), hint=document.getElementById('amt-hint'), clearB=document.getElementById('clear-btn');
+  input.value=fmtNum(state.amount)+'\u00a0₽'; clearB.classList.add('show');
+  input.addEventListener('focus',()=>{ field.classList.add('focused'); input.value=state.amount>0?fmtInputNum(String(state.amount))+'\u00a0₽':'₽'; const p=state.amount>0?input.value.length-2:0; input.setSelectionRange(p,p); });
+  input.addEventListener('blur',()=>{ field.classList.remove('focused'); refreshAmountDisplay(); });
+  input.addEventListener('input',()=>{ let raw=input.value.replace(/\D/g,''); if (!raw){state.amount=0;clearB.classList.remove('show');}else{let num=parseInt(raw,10);if(num>MAX_AMOUNT){num=MAX_AMOUNT;raw=String(MAX_AMOUNT);}state.amount=num;clearB.classList.add('show');} const cb=input.selectionStart,lb=input.value.length,fmt=raw?fmtInputNum(raw)+'\u00a0₽':'₽'; input.value=fmt; input.setSelectionRange(raw?Math.max(0,Math.min(cb+(fmt.length-lb),fmt.length-2)):0,raw?Math.max(0,Math.min(cb+(fmt.length-lb),fmt.length-2)):0); clearTimeout(amtTimer); amtTimer=setTimeout(()=>{recalculate();trackEvent('calc_amount_change',{amount:state.amount});},300); });
+  field.addEventListener('click',()=>input.focus());
+  clearB.addEventListener('click',e=>{ e.stopPropagation(); state.amount=0; clearB.classList.remove('show'); hint.textContent='Введите сумму'; hint.classList.add('err'); field.classList.add('error','focused'); input.value=''; input.focus(); recalculate(); });
+}
+function refreshAmountDisplay() {
+  const input=document.getElementById('amt-input'),hint=document.getElementById('amt-hint'),field=document.getElementById('amt-field');
+  if (!state.amount||state.amount===0){input.value='';hint.textContent='Введите сумму';hint.classList.add('err');field.classList.add('error');}
+  else if (state.amount<10000){input.value=fmtNum(state.amount)+'\u00a0₽';hint.textContent='Минимальная сумма — 10 000 ₽';hint.classList.add('err');field.classList.add('error');}
+  else {input.value=fmtNum(state.amount)+'\u00a0₽';hint.textContent='От 10 000 ₽';hint.classList.remove('err');field.classList.remove('error');}
+  document.getElementById('clear-btn').classList.toggle('show',state.amount>0);
+}
+
+function initTermDropdown() {
+  renderDropdownItems();
+  const tf=document.getElementById('term-field'),bs=document.getElementById('term-bs'),bsc=document.getElementById('bs-close'),dd=document.getElementById('term-dd');
+  tf.addEventListener('click',openBS); tf.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openBS();}});
+  bsc.addEventListener('click',closeBS); bs.addEventListener('click',e=>{if(e.target===bs)closeBS();});
+  dd.addEventListener('click',e=>{ const item=e.target.closest('.dd-item'); if(!item)return; state.termKey=item.dataset.key; state.termMonths=parseInt(item.dataset.months,10); document.getElementById('term-display').textContent=item.dataset.label; closeBS(); recalculate(); trackEvent('calc_term_change',{term:state.termKey}); });
+}
+function renderDropdownItems() { document.getElementById('term-dd').innerHTML=TERMS.map(t=>`<div class="dd-item${t.key===state.termKey?' sel':''}" data-key="${t.key}" data-months="${t.months}" data-label="${t.label}" role="option" aria-selected="${t.key===state.termKey}"><span>${t.label}</span>${t.key===state.termKey?`<svg class="dd-check" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10l5 5 7-8" stroke="rgba(3,3,6,0.88)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}</div>`).join(''); }
+function openBS() { if(state.amount<10000)return; renderDropdownItems(); document.getElementById('term-bs').classList.add('vis'); document.body.style.overflow='hidden'; }
+function closeBS() { const bs=document.getElementById('term-bs'); bs.classList.add('closing'); bs.classList.remove('vis'); setTimeout(()=>{bs.classList.remove('closing');document.body.style.overflow='';},200); }
+
+function initCheckboxes() {
+  function addCb(rowId, onToggle) { const row=document.getElementById(rowId); function toggle(){if(row.classList.contains('dis'))return; onToggle(); recalculate();} row.addEventListener('click',toggle); row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}}); }
+  addCb('cb-row-cap',()=>{state.interestOnDeposit=!state.interestOnDeposit;});
+  addCb('cb-row-rep',()=>{state.replenish=!state.replenish;if(!state.replenish)state.withdraw=false;});
+  addCb('cb-row-wit',()=>{state.withdraw=!state.withdraw;if(state.withdraw)state.replenish=true;});
+}
+function initToggle() {
+  const tog=document.getElementById('ar-toggle');
+  function toggle(){state.autoRenewal=!state.autoRenewal;renderUI();trackEvent('calc_option_toggle',{option:'autoRenewal',value:state.autoRenewal});}
+  tog.addEventListener('click',toggle); tog.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+}
+
+// PDF helpers (simplified)
+function formatAmountWithCopecks(n) { const s=n.toFixed(2).split('.'); return s[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ')+'.'+s[1]; }
+function numberToWordsRub(n) { if(n===0)return'Ноль рублей'; const H=['','сто','двести','триста','четыреста','пятьсот','шестьсот','семьсот','восемьсот','девятьсот'],T=['','','двадцать','тридцать','сорок','пятьдесят','шестьдесят','семьдесят','восемьдесят','девяносто'],TN=['десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать','шестнадцать','семнадцать','восемнадцать','девятнадцать'],OM=['','один','два','три','четыре','пять','шесть','семь','восемь','девять'],OF=['','одна','две','три','четыре','пять','шесть','семь','восемь','девять']; function decl(x,f){const l2=x%100,l1=x%10;if(l2>=11&&l2<=19)return f[2];if(l1===1)return f[0];if(l1>=2&&l1<=4)return f[1];return f[2];} function chunk(x,fem){const o=fem?OF:OM,p=[],h=Math.floor(x/100),r=x%100;if(h)p.push(H[h]);if(r>=10&&r<=19)p.push(TN[r-10]);else{const t=Math.floor(r/10),u=r%10;if(t)p.push(T[t]);if(u)p.push(o[u]);}return p.join(' ');} const p=[],m=Math.floor(n/1000000),t=Math.floor((n%1000000)/1000),o=n%1000; if(m)p.push(chunk(m,false)+' '+decl(m,['миллион','миллиона','миллионов'])); if(t)p.push(chunk(t,true)+' '+decl(t,['тысяча','тысячи','тысяч'])); if(o)p.push(chunk(o,false)); const r=(p.join(' ')+' '+decl(n,['рубль','рубля','рублей'])).trim(); return r.charAt(0).toUpperCase()+r.slice(1); }
+function rateToWords(rp) { const H=['','сто','двести','триста','четыреста','пятьсот','шестьсот','семьсот','восемьсот','девятьсот'],T=['','','двадцать','тридцать','сорок','пятьдесят','шестьдесят','семьдесят','восемьдесят','девяносто'],TN=['десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать','шестнадцать','семнадцать','восемнадцать','девятнадцать'],OM=['','один','два','три','четыре','пять','шесть','семь','восемь','девять'],OF=['','одна','две','три','четыре','пять','шесть','семь','восемь','девять']; function iw(n){if(n>=10&&n<=19)return TN[n-10];const t=Math.floor(n/10),o=n%10,p=[];if(t)p.push(T[t]);if(o)p.push(OM[o]);return p.join(' ')||'ноль';} function fw(n){const p=[],h=Math.floor(n/100),r=n%100;if(h)p.push(H[h]);if(r>=10&&r<=19)p.push(TN[r-10]);else{const t=Math.floor(r/10),o=r%10;if(t)p.push(T[t]);if(o)p.push(OF[o]);}return p.join(' ')||'ноль';} const ip=Math.floor(rp),fp=Math.round((rp%1)*1000),il2=ip%100,il1=ip%10,cw=(il2>=11&&il2<=19)?'целых':(il1===1?'целая':'целых'),fl2=fp%100,fl1=fp%10,tw=(fl2>=11&&fl2<=19)?'тысячных':(fl1===1?'тысячная':'тысячных'); return `${iw(ip)} ${cw} ${fw(fp)} ${tw}`; }
+
+function buildContractHTML() {
+  const tDays          = state.termDays || '—';
+  const baseRatePct    = state.baseRate    != null ? (state.baseRate    * 100).toFixed(2) : '—';
+  const displayRatePct = state.displayRate != null ? (state.displayRate * 100).toFixed(2) : '—';
+  const displayRate3   = state.displayRate != null ? (state.displayRate * 100).toFixed(3) : '—';
+  const displayRateWords = state.displayRate != null ? rateToWords(state.displayRate * 100) : '—';
+
+  const amtFmt   = formatAmountWithCopecks(state.amount);
+  const amtWords = numberToWordsRub(state.amount);
+
+  const productName = getProductFullName(state.productType);
+
+  const replenishContent = (state.productType === 'standard')
+    ? 'Не предусмотрено.'
+    : `Клиент может пополнить Депозит путем зачисления на Депозитный счет
+       дополнительных взносов в размере, не менее минимальной суммы
+       дополнительного взноса, утвержденной Банком на день зачисления
+       денежных средств.<br><br>
+       Зачисление дополнительных взносов может быть осуществлено Клиентом
+       в любой момент времени, но не позднее 30 календарных дней до
+       окончания Срока депозита.<br><br>
+       При этом сумма Депозита после перевода дополнительных взносов на
+       Депозитный счет (без учета ранее начисленных процентов) не должна
+       превышать Максимальную сумму, установленную Банком на день внесения
+       дополнительного взноса.`;
+
+  let earlyPartialContent;
+  if (state.productType === 'replenish_withdraw' && state.minBalance) {
+    const mbFmt  = formatAmountWithCopecks(state.minBalance);
+    const mbWords = numberToWordsRub(state.minBalance);
+    earlyPartialContent = `Предусмотрена, но не более размера Неснижаемого
+      остатка, рассчитываемого в соответствии с Договором КБО.
+      На момент размещения Депозита Неснижаемый остаток составляет
+      ${mbFmt} рублей (${mbWords} 00 копеек).`;
+  } else {
+    earlyPartialContent = 'Не предусмотрена.';
+  }
+
+  const renewalContent = state.autoRenewal
+    ? 'Предусмотрена. Автоматическая пролонгация на тот же срок.'
+    : 'Не предусмотрена.';
+
+  return `
+  <div id="contract-printable" style="font-family:'Times New Roman','PT Serif',Georgia,serif;
+    font-size:12px;line-height:1.6;color:#000;width:650px;
+    margin:0;padding:0 40px;word-break:break-word;overflow-wrap:break-word;">
+
+    <!-- ═══ СТРАНИЦА 1 ═══ -->
+
+    <!-- Блок ставки (правый край) -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
+      <div style="text-align:center;border:2px solid #333;padding:14px 20px;width:200px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;
+          line-height:1.5;margin-bottom:8px;">
+          МИНИМАЛЬНАЯ<br>ГАРАНТИРОВАННАЯ<br>СТАВКА
+        </div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:4px;">
+          ${displayRate3}
+        </div>
+        <div style="font-size:10px;margin-bottom:4px;">
+          (${displayRateWords})
+        </div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;">
+          ПРОЦЕНТА ГОДОВЫХ
+        </div>
+      </div>
+    </div>
+
+    <!-- Заголовок -->
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-weight:700;font-size:13px;text-transform:uppercase;
+        margin-bottom:6px;">
+        ЗАЯВЛЕНИЕ НА РАЗМЕЩЕНИЕ СРОЧНОГО ДЕПОЗИТА
+      </div>
+      <div style="font-size:11px;line-height:1.5;">
+        В рамках Договора о комплексном банковском обслуживании физических лиц
+        в АО «АЛЬФА-БАНК» (далее – Договор КБО)
+      </div>
+    </div>
+
+    <!-- Вводный текст -->
+    <p style="margin-bottom:16px;font-size:11px;">
+      Я, _______________ прошу АО «АЛЬФА-БАНК» (далее - Банк) принять от меня
+      Депозит (вклад) на следующих условиях:
+    </p>
+
+    <!-- Таблица условий -->
+    <table style="width:100%;border-collapse:collapse;font-size:10px;
+      line-height:1.5;" cellpadding="0">
+      <thead>
+        <tr style="background:#f5f5f5;">
+          <th style="border:1px solid #999;width:35px;text-align:center;
+            font-size:9px;padding:4px;">№ п/п</th>
+          <th style="border:1px solid #999;width:40%;
+            font-size:9px;padding:4px;">
+            Условие договора банковского вклада
+          </th>
+          <th style="border:1px solid #999;font-size:9px;padding:4px;">
+            Содержание условия договора банковского вклада
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- 1. Вид вклада -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">1.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">Вид вклада</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">${productName}</td>
+        </tr>
+
+        <!-- 2. Сумма и валюта -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">2.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">Сумма и валюта вклада</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Сумма Депозита:<br>
+            ${amtFmt} рублей (${amtWords} 00 копеек)
+          </td>
+        </tr>
+
+        <!-- 3. Пополнение -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">3.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Возможность пополнения вклада, имеющиеся ограничения
+            на пополнение вклада
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">${replenishContent}</td>
+        </tr>
+
+        <!-- 4. Срок и дата -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">4.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Срок и дата возврата вклада - по срочным вкладам.
+            По договорам банковского вклада, заключенным на условиях
+            выдачи вклада по требованию, указываются слова
+            "до востребования"
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Срок депозита: ${tDays} дней<br>
+            Дата окончания Срока депозита: ${state.endDate || '—'}
+          </td>
+        </tr>
+
+
+        <!-- 5. Процентная ставка -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">5.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Процентная ставка (процентные ставки) по вкладу в процентах
+            годовых - по договорам банковского вклада, в которых
+            фиксированная величина или фиксированные величины процентной
+            ставки стороны договора определяют в договоре банковского вклада
+            при его заключении (постоянная процентная ставка). При наличии
+            нескольких процентных ставок по вкладу указываются условие и
+            период времени применения каждой из них. По вкладам до
+            востребования процентная ставка указывается на дату заключения
+            договора банковского вклада, а также указывается информация о
+            возможности изменения банком размера выплачиваемых процентов в
+            случае, если такая возможность предусмотрена договором
+            банковского вклада. При применении переменной процентной ставки
+            (процентной ставки, содержащей переменные величины, значения
+            которых определяются исходя из обстоятельств, не зависящих от
+            банка и аффилированных с ним лиц) - порядок ее определения и
+            значение на дату заключения договора банковского вклада, порядок
+            и срок информирования вкладчика об изменении такой процентной
+            ставки.
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Базовая процентная ставка: ${baseRatePct}% годовых<br><br>
+            Надбавка за Пакет услуг (применяется только при обслуживании
+            клиента по Пакетам услуг «Alfa Only» в Универсальной линейке
+            карт или «Максимум+»): 0.19% годовых<br><br>
+            Надбавка за Пакет услуг (применяется только при обслуживании
+            клиента по Пакету услуг «А-Клуб»): 0.29% годовых<br><br>
+            Процентная ставка с учетом надбавок: ${baseRatePct}% годовых
+            (данная процентная ставка включает сумму базовой ставки и
+            применимых по Депозиту надбавок без учета капитализации)<br><br>
+            Процентная ставка с учётом Капитализации: ${displayRatePct}%
+            годовых<br><br>
+            Порядок расчета процентной ставки с учетом Капитализации
+            установлены Договором КБО.<br><br>
+            Условия применения всех надбавок установлены Договором КБО.<br><br>
+            При изменении условий обслуживания (смене одного Пакета услуг на
+            другой / перехода Клиента с Пакета услуг на обслуживание по
+            тарифам Универсальной линейки карт / перехода с Универсальной
+            линейки карт на Пакет услуг / перехода с Универсальной линейки
+            карт без Пакета услуг «Alfa Only» на Универсальную линейку карт
+            с Пакетом услуг «Alfa Only» и наоборот) в течение Срока депозита
+            размер Надбавки за Пакет услуг/Надбавки за Универсальную
+            линейку/Надбавки на Новые деньги может быть изменен и
+            определяется в соответствии с условиями Договора КБО.
+          </td>
+        </tr>
+
+        <!-- 6. Порядок выплаты процентов -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">6.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Порядок выплаты вкладчику процентов по вкладу
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Проценты по Депозиту причисляются к сумме Депозита
+            (капитализируются) ежемесячно в последний день каждого
+            календарного месяца и (только при продлении Депозита) в день
+            окончания Срока депозита.<br><br>
+            Если продление Депозита не осуществляется, то проценты за
+            последний календарный месяц Срока депозита не причисляются к
+            сумме Депозита, а выплачиваются в дату возврата Депозита на
+            текущий счет Клиента в валюте Депозита, выбранный Клиентом, а
+            если данный счет на дату выплаты процентов закрыт, то на иной
+            текущий счет Клиента в валюте Депозита, открытый по поручению
+            Клиента в целях возврата Депозита.
+          </td>
+        </tr>
+
+
+        <!-- 7. Ставка при досрочном возврате -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">7.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Процентная ставка (процентные ставки) либо порядок ее (их)
+            определения при досрочном возврате суммы срочного вклада или ее
+            части по требованию вкладчика
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            При досрочном возврате Депозита проценты начисляются на сумму
+            Депозита со дня, следующего за днем размещения Депозита, по день
+            досрочного возврата Депозита включительно из расчета 1/2
+            процентной ставки по вкладу до востребования, действующей на дату
+            досрочного возврата Депозита
+          </td>
+        </tr>
+
+        <!-- 8. Досрочный возврат части -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">8.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Возможность досрочного возврата части суммы срочного вклада без
+            изменения условий о размере процентов и периодичности их выплаты,
+            условия такого досрочного возврата, размер неснижаемого остатка
+            суммы вклада
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            ${earlyPartialContent}
+          </td>
+        </tr>
+
+        <!-- 9. Продление срока -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">9.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Возможность и порядок продления срока срочного вклада
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            ${renewalContent}
+          </td>
+        </tr>
+
+
+        <!-- 10. Способ обмена информацией -->
+        <tr>
+          <td style="border:1px solid #999;text-align:center;padding:6px 8px;vertical-align:top;">10.</td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Способ обмена информацией между банком и вкладчиком
+          </td>
+          <td style="border:1px solid #999;padding:6px 8px;vertical-align:top;">
+            Отделения Банка, все отделения Банка указаны на сайте Банка
+            www.alfabank.ru, в мобильном приложении «Альфа-Мобайл» и
+            Интернет Банке «Альфа-Клик»; Телефонный центр
+            «Альфа-Консультант», +7 495 78-888-78; Чат в рамках услуг
+            «Альфа-Мобайл», «Альфа-Мобайл-Лайт» и Интернет Банка
+            «Альфа-Клик».
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <!-- Подвал -->
+    <p style="margin-top:16px;font-size:10px;line-height:1.5;">
+      Термины, специально не определенные в настоящем заявлении, указанные
+      с заглавных букв, используются в значениях, установленных Договором КБО.
+    </p>
+
+  </div>`;
+}
+
+function openContract() {
+  const ov=document.getElementById('contract-overlay');
+  document.getElementById('ov-content').innerHTML=buildContractHTML();
+  ov.querySelector('.ov-body').scrollTop=0; ov.classList.add('vis'); document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>{ const p=document.getElementById('contract-printable'),c=document.getElementById('ov-content'); if(!p)return; const aw=c.clientWidth,dw=p.scrollWidth; if(dw>aw){const s=aw/dw;p.style.transform=`scale(${s})`;p.style.transformOrigin='top left';p.style.marginBottom=`-${Math.round(p.scrollHeight*(1-s))}px`;} });
+  trackEvent('contract_preview_open',{amount:state.amount,term:state.termKey});
+}
+function closeContract() { const ov=document.getElementById('contract-overlay'); ov.classList.add('closing'); ov.classList.remove('vis'); setTimeout(()=>{ov.classList.remove('closing');document.body.style.overflow='';},200); }
+function initContractOverlay(){document.getElementById('doc-link').addEventListener('click',openContract);document.getElementById('doc-link').addEventListener('keydown',e=>{if(e.key==='Enter')openContract();});document.getElementById('ov-close').addEventListener('click',closeContract);}
+
+// ============================================================
+// ИИ-САММАРИЗАТОР — ВАРИАНТ 2 (BOTTOM SHEET)
+// ============================================================
+function buildSummaryBodyHTML() {
+  const pn   = getProductFullName(state.productType);
+  const amt  = state.amount ? fmtNum(state.amount) : '—';
+  const rate = state.shownRate != null ? fmtRate(state.shownRate) : '—';
+  const days = state.termDays || '—';
+  const end  = state.endDate || '—';
+  const rep  = state.replenish
+    ? 'предусмотрено (мин. взнос — по тарифам банка, не позднее 30 дней до окончания срока)'
+    : 'не предусмотрено';
+  const auto    = state.autoRenewal ? 'предусмотрено' : 'не предусмотрено';
+  const mbItem  = (state.productType === 'replenish_withdraw' && state.minBalance)
+    ? `<li class="ai-bs-item"><span class="ai-bs-item-inner">Неснижаемый остаток: ${fmtNum(state.minBalance)}\u00a0₽ <span class="ai-ref">(п. 8)</span></span></li>`
+    : '';
+  const closing = state.autoRenewal
+    ? 'При включённом автопродлении вклад продлится на тот же срок'
+    : 'Если автопродление не установлено, вклад закроется автоматически';
+  const asvItem = state.amount > 1400000
+    ? `<li class="ai-bs-item"><span class="ai-bs-item-inner">Сумма вклада превышает страховой лимит АСВ (1\u00a0400\u00a0000\u00a0₽) — средства сверх этой суммы не застрахованы государством</span></li>` : '';
+  return `
+    <div class="ai-body-sec-title">Описание продукта</div>
+    <ul class="ai-bs-list">
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">Тип вклада: ${pn} <span class="ai-ref">(п. 1)</span></span></li>
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">Сумма: ${amt}\u00a0₽ <span class="ai-ref">(п. 2)</span></span></li>
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">Срок: ${days} дней, до ${end} <span class="ai-ref">(п. 4)</span></span></li>
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">Ставка: ${rate} годовых <span class="ai-ref">(п. 5)</span></span></li>
+    </ul>
+    <div class="ai-body-sec-title">Существенные условия</div>
+    <ul class="ai-bs-list">
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">Проценты капитализируются ежемесячно, в последний день месяца <span class="ai-ref">(п. 6)</span></span></li>
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">Пополнение: ${rep} <span class="ai-ref">(п. 3)</span></span></li>
+      ${mbItem}
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">Автопродление: ${auto} <span class="ai-ref">(п. 9)</span></span></li>
+    </ul>
+    <div class="ai-body-sec-title">На что обратить внимание</div>
+    <ul class="ai-bs-list">
+      <li class="ai-bs-item"><span class="ai-bs-item-inner" style="color:#C25A00;">При досрочном закрытии проценты пересчитываются по ставке 1/2 от ставки до востребования <span class="ai-ref">(п. 7)</span></span></li>
+      <li class="ai-bs-item"><span class="ai-bs-item-inner">${closing} <span class="ai-ref">(п. 9)</span></span></li>
+      ${asvItem}
+    </ul>
+    <p class="ai-body-disclaimer">Описание сгенерировано автоматически с помощью ИИ-системы. Не заменяет изучение полного комплекта документов.</p>
+  `;
+}
+
+function openAISummaryBS() {
+  document.getElementById('ai-bs-content').innerHTML = buildSummaryBodyHTML();
+  const bs = document.getElementById('ai-summary-bs');
+  bs.classList.add('vis');
+  document.body.style.overflow = 'hidden';
+}
+function closeAISummaryBS() {
+  const bs = document.getElementById('ai-summary-bs');
+  bs.classList.add('closing');
+  bs.classList.remove('vis');
+  setTimeout(() => { bs.classList.remove('closing'); document.body.style.overflow = ''; }, 200);
+}
+
+function initSummarizer() {
+  const block   = document.getElementById('ai-facts-block');
+  const trigger = document.getElementById('ai-accordion-trigger');
+
+  if (window.IntersectionObserver) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { trackEvent('summarizer_facts_visible', { variant: 2 }); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.5 });
+    obs.observe(block);
+  }
+
+  function handleOpen() {
+    openAISummaryBS();
+    trackEvent('summarizer_expand', { variant: 2, amount: state.amount, term: state.termKey });
+  }
+
+  trigger.addEventListener('click', handleOpen);
+  trigger.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpen(); } });
+
+  const bsEl  = document.getElementById('ai-summary-bs');
+  const close = document.getElementById('ai-bs-close');
+  close.addEventListener('click', closeAISummaryBS);
+  bsEl.addEventListener('click', e => { if (e.target === bsEl) closeAISummaryBS(); });
+}
+
+// GA4
+function trackEvent(name, data={}) { data.variant=VARIANT_ID; data.platform=PLATFORM; console.log('[track]',name,data); if(typeof gtag==='function')gtag('event',name,data); }
+function initScrollTracking() { if(!window.IntersectionObserver)return; const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){trackEvent('scroll_to_'+e.target.dataset.trackSection);obs.unobserve(e.target);}});},{threshold:0.5}); document.querySelectorAll('[data-track-section]').forEach(el=>obs.observe(el)); }
+
+function initCTA() {
+  document.getElementById('cta-btn').addEventListener('click', function() {
+    if (this.classList.contains('off') || this.hasAttribute('disabled')) return;
+    gtag('event', 'cta_click_7402_3_andr', {
+      event_category: 'cta', event_label: 'deposit_open',
+      variant: VARIANT_ID, platform: PLATFORM, amount: state.amount, term: state.termKey, rate: state.shownRate
+    });
+    localStorage.setItem('7402_done', '1');
+    setTimeout(() => { window.location.replace(CTA_URL); }, 100);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('7402_done')) { window.location.replace('https://ghk-cr-track.ru/7402_end'); return; }
+  initAmountInput(); initTermDropdown(); initCheckboxes(); initToggle();
+  initContractOverlay(); initSummarizer(); initCTA(); initScrollTracking();
+  recalculate(); trackEvent('landing_open');
+});
+</script>
+
+<script>
+/* ── Tracking 7402 ── */
+(function() {
+  var WEBHOOK  = 'https://script.google.com/macros/s/AKfycbyJ3LG8mpZHl49wW9s5zzD5eB14XzlvKEFEIOqW8E2TSyZpkfJ5Zp01j9-Y8BpKRN_oUw/exec';
+  var VARIANT  = '3';
+  var PLATFORM = 'android';
+
+  var userId = localStorage.getItem('uid_7402');
+  if (!userId) { userId = crypto.randomUUID(); localStorage.setItem('uid_7402', userId); }
+  var sessionId = crypto.randomUUID();
+
+  function getScrollDepth() {
+    var el = document.documentElement;
+    var scrolled = el.scrollTop || document.body.scrollTop;
+    var total = (el.scrollHeight || document.body.scrollHeight) - el.clientHeight;
+    return total > 0 ? Math.round(scrolled / total * 100) : 0;
+  }
+
+  function track(event, eventValue) {
+    navigator.sendBeacon(WEBHOOK, JSON.stringify({
+      exp_number: '7402', variant: VARIANT, platform: PLATFORM,
+      user_id: userId, session_id: sessionId,
+      event: event, event_value: eventValue || '', scroll_depth: getScrollDepth()
+    }));
+  }
+
+  track('landing_open');
+
+  var choseFired = false;
+  function fireChose() { if (!choseFired) { choseFired = true; track('chose_something'); } }
+  ['#term-field','#cb-row-cap','#cb-row-rep','#cb-row-wit','#ar-toggle'].forEach(function(sel) {
+    var el = document.querySelector(sel); if (el) el.addEventListener('click', fireChose);
+  });
+  var amtInput = document.querySelector('#amt-input');
+  if (amtInput) amtInput.addEventListener('input', fireChose);
+
+  var firedDepths = new Set();
+  window.addEventListener('scroll', function() {
+    var d = getScrollDepth();
+    [25, 50, 75, 100].forEach(function(t) {
+      if (d >= t && !firedDepths.has(t)) { firedDepths.add(t); track('scroll_depth', String(t)); }
+    });
+  }, { passive: true });
+
+  var docLink = document.querySelector('#doc-link');
+  if (docLink) docLink.addEventListener('click', function() { track('info_overlay_open'); });
+
+  var ctaBtn = document.querySelector('#cta-btn');
+  if (ctaBtn) ctaBtn.addEventListener('click', function() { track('cta_click'); });
+
+  window._track = track;
+})();
+</script>
+
+<script>
+/* ── Tracking: AI bottom sheet (variant 3) ── */
+(function() {
+  var aiTrigger = document.querySelector('#ai-accordion-trigger');
+  if (aiTrigger) aiTrigger.addEventListener('click', function() { window._track('ai_bs_open'); });
+})();
+</script>
+</body>
+</html>

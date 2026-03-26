@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Благодарим за участие!</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: 'Roboto', system-ui, 'Helvetica Neue', Arial, sans-serif;
+      background: #FFFFFF;
+      color: rgba(3, 3, 6, 0.88);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 24px 0 calc(148px + env(safe-area-inset-bottom));
+    }
+
+    /* ── Картинка ── */
+    .img-wrap {
+      display: flex; justify-content: center; align-items: center;
+      padding: 0 20px 8px;
+    }
+    .img-wrap img {
+      width: 160px; height: 160px; object-fit: contain; display: block;
+    }
+
+    /* ── Текстовый контент ── */
+    .content {
+      padding: 20px 20px 0;
+    }
+
+    .page-title {
+      font-size: 24px; line-height: 30px; font-weight: 700;
+      letter-spacing: -0.02em; margin-bottom: 12px;
+    }
+
+    .body-text {
+      font-size: 15px; line-height: 22px; font-weight: 400;
+      color: rgba(3, 3, 6, 0.88);
+    }
+    .body-text p + p { margin-top: 10px; }
+
+    /* ── Фиксированная CTA-зона ── */
+    .cta-wrap {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 10px 20px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      background: #FFFFFF;
+      z-index: 100;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .cta-btn, a.cta-btn, a.cta-btn:link, a.cta-btn:visited, a.cta-btn:hover, a.cta-btn:active {
+      display: block; width: 100%; height: 48px; border-radius: 14px;
+      background: #000000; color: #FFFFFF !important;
+      font-size: 16px; font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer;
+      text-align: center; line-height: 48px;
+      text-decoration: none !important;
+      transition: opacity 0.1s ease-out;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-fill-color: #FFFFFF;
+    }
+    .cta-btn:active { opacity: 0.8; }
+
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── Картинка ── -->
+  <div class="img-wrap">
+    <img src="https://static.tildacdn.com/tild3832-6664-4961-b135-626238396537/rocket_mini.png" alt="">
+  </div>
+
+  <!-- ── Текст ── -->
+  <div class="content">
+    <h1 class="page-title">Благодарим за участие!</h1>
+    <div class="body-text">
+      <p>Вы только что поучаствовали в настоящем эксперименте!</p>
+      <p>Сейчас мы тестируем новые условия и функционал по вкладам, которые пока недоступны. Вернёмся к вам с лучшим предложением!</p>
+      <p>Для просмотра актуальных условий и открытия вклада перейдите по кнопке ниже:</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── CTA ── -->
+<div class="cta-wrap">
+  <a href="#" class="cta-btn">Перейти в раздел «Вклады»</a>
+  <a href="#" class="cta-btn">На главный</a>
+</div>
+
+<script>
+  localStorage.setItem('7402_done', '1');
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', function() {
+    history.pushState(null, '', location.href);
+  });
+</script>
+</body>
+</html>
